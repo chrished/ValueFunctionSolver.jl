@@ -63,7 +63,7 @@ module ValueFunctionSolver
             update_V!(V)
             dist = maximum(abs, V-Vguess)
             if dist < tol
-                return V
+                return V, dist
             end
             Vguess[:] = V[:]
         end
