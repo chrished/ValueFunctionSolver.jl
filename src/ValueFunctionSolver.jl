@@ -1,6 +1,6 @@
 module ValueFunctionSolver
+    export gss, it_solve
 
-    export gss
     const invphi = (sqrt(5) - 1) / 2
     const invphi2 = (3 - sqrt(5)) / 2
     """
@@ -56,4 +56,18 @@ module ValueFunctionSolver
         end
     end
 
+    function it_solve(Vguess, update_V!; tol = 1e-5, maxit = 1000)
+        V = copy(Vguess)
+        dist = tol*1e2
+        for it = 1:maxit
+            update_V!(V)
+            dist = maximum(abs, V-Vguess)
+            if dist < tol
+                return V
+            end
+            Vguess[:] = V[:]
+        end
+        println("Did not reach specified tolerance within maximum number of iterations. Current dist: $dist")
+        return V, dist
+    end
 end # module
