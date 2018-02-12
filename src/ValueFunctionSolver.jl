@@ -56,12 +56,21 @@ module ValueFunctionSolver
         end
     end
 
-    function it_solve(Vguess, update_V!; tol = 1e-5, maxit = 1000)
+    function it_solve(Vguess, update_V!; tol = 1e-5, maxit = 1000, verbose = true)
         V = copy(Vguess)
         dist = tol*1e2
         for it = 1:maxit
+            if verbose
+                println("Iteration $it")
+            end
             update_V!(V)
             dist = maximum(abs, V-Vguess)
+            if verbose
+                println("Distance $dist")
+            end
+            if isnan(dist)
+                throw("Distance NaN")
+            end
             if dist < tol
                 return V, dist
             end
