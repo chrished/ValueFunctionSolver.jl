@@ -1,5 +1,5 @@
 module ValueFunctionSolver
-    export gss, it_solve
+    export gss, it_solve, index_vcattensor, tensor_grid
 
     const invphi = (sqrt(5) - 1) / 2
     const invphi2 = (3 - sqrt(5)) / 2
@@ -79,4 +79,39 @@ module ValueFunctionSolver
         println("Did not reach specified tolerance within maximum number of iterations. Current dist: $dist")
         return V, dist
     end
+
+    """
+    index_vcattensor(subtensor::Array{Int}, Ntensor::Array{Int})
+    
+    Index into vcat of tensor grid. Subtensor position in each dimension. First dimension moves first.
+
+    """
+    function index_vcattensor(subtensor::Array{Int}, Ntensor::Array{Int})
+       myind = 0
+       # iterate up to second to last index
+       for i in length(subtensor):-1:2
+           myind += (subtensor[i] - 1)*prod(Ntensor[1:i-1])
+       end
+       myind += subtensor[1]
+       return myind
+   end
+
+   """
+   tensor_grid(xs)
+
+   Vcat of tensor grid. First dimension moves first.
+   where xs is a collection of unidimensional grids
+   """
+   function tensor_grid(xs)
+       N = [length(xs[i]) for i = 1:length(xs)]
+       totN = prod(N)
+       d = length(N)
+       xmat = Array{eltype(xs[1])}(totN,d)
+       for i in 1:d
+           repout = Int(totN/prod(N[1:i]))
+           repin = Int(totN/N[i]/repout)
+           xmat[:, i] = repeat(xs[i], inner=repin, outer=repout)
+       end
+       return xmat
+end
 end # module
