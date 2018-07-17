@@ -81,18 +81,39 @@ module ValueFunctionSolver
     end
 
     """
-    index_vcattensor(subtensor::Array{Int}, Ntensor::Array{Int})
+    index_vcattensor(iDim::Array{Int}, Idim::Array{Int})
     
-    Index into vcat of tensor grid. Subtensor position in each dimension. First dimension moves first.
+    Row Index into vcat of a matrix. Subtensor position in each dimension. First dimension moves first.
+    
+    Example: 
+    I1 = 2
+    I2 = 3 
+    X = [i1*i2 for i1=1:I1, i2=1:I2]
+    
+    2×3 Array{Int64,2}:
+    1  2  3
+    2  4  6
+    
+    Xlong = X[:]
 
+    6-element Array{Int64,1}:
+    1
+    2
+    2
+    4
+    3
+    6
+
+    Then:
+    X[i1, i2, i3] == Xlong[index_vcattensor([i1, i2, i3], [I1, I2, I3])]
     """
-    function index_vcattensor(subtensor::Array{Int}, Ntensor::Array{Int})
+    function index_vcattensor(idim::Array{Int}, Idim::Array{Int})
        myind = 0
        # iterate up to second to last index
-       for i in length(subtensor):-1:2
-           myind += (subtensor[i] - 1)*prod(Ntensor[1:i-1])
+       for i in length(idim):-1:2
+           myind += (idim[i] - 1)*prod(Idim[1:i-1])
        end
-       myind += subtensor[1]
+       myind += idim[1]
        return myind
    end
 
