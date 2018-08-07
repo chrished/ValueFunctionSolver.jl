@@ -134,5 +134,46 @@ module ValueFunctionSolver
            xmat[:, i] = repeat(xs[i], inner=repin, outer=repout)
        end
        return xmat
-end
-end # module
+    end
+
+    """
+    tensor_product(xs)
+
+    product along row of Vcat of tensor grid. First dimension moves first.
+    where xs is a collection of unidimensional grids
+    """
+   function tensor_product(xs)
+       N = [length(xs[i]) for i = 1:length(xs)]
+       totN = prod(N)
+       d = length(N)
+       xmat = ones(eltype(xs[1]),totN)
+       for i in 1:d
+           repout = Int(totN/prod(N[1:i]))
+           repin = Int(totN/N[i]/repout)
+           xmat .= xmat.*repeat(xs[i], inner=repin, outer=repout)
+       end
+       return xmat
+    end
+
+    """
+    tensor_grid(xs, ws)
+    """
+    function tensor_grid(xs,ws)
+        N = [length(xs[i]) for i = 1:length(xs)]
+        Nw = [length(ws[i]) for i = 1:length(xs)]
+        @assert all(N.==Nw)
+
+        totN = prod(N)
+        d = length(N)
+        xmat = Array{eltype(xs[1])}(totN,d)
+        w = ones(eltype(ws[1]),totN)
+        for i in 1:d
+            repout = Int(totN/prod(N[1:i]))
+            repin = Int(totN/N[i]/repout)
+            xmat[:, i] = repeat(xs[i], inner=repin, outer=repout)
+            w .= w.*repeat(ws[i], inner=repin, outer=repout)
+        end
+        return xmat, w
+     end
+  
+end 
